@@ -16,11 +16,13 @@ func worker(ports chan int, wg *sync.WaitGroup) {
 		conn, err_net_dial := net.Dial(network, address)
 
 		if err_net_dial != nil {
+			wg.Done()
 			continue
 		}
 
-		conn.Close()
 		fmt.Printf("Connection success for port: %d\n", port)
+
+		conn.Close()
 		wg.Done()
 	}
 }
@@ -35,12 +37,14 @@ func main() {
 	if err_network != nil {
 		network = "tcp"
 	}
+	fmt.Println("\r")
 
 	fmt.Println("Please, enter host (default scanme.nmap.org): ")
 	_, err_host := fmt.Scanln(&host)
 	if err_host != nil {
 		host = "scanme.nmap.org"
 	}
+	fmt.Println("\r")
 
 	fmt.Printf("Scan for %s start...\n", host)
 
@@ -53,6 +57,8 @@ func main() {
 	for port := 1; port <= 65535; port++ {
 		wg.Add(1)
 		ports <- port
+		fmt.Printf("try connection port: %d", port)
+		fmt.Printf("\r")
 	}
 
 	wg.Wait()
